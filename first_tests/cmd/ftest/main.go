@@ -9,7 +9,7 @@ import (
 // Функция, которая выполняет какую-то работу и сигнализирует о завершении через контекст
 func worker(ctx context.Context, cancel context.CancelFunc, done chan<- struct{}) {
 	defer close(done) // Закрываем канал при завершении работы
-	//test Nikita1 
+	//test Nikita2 
 	fmt.Println("Горутина начала работу")
 
 	time.Sleep(1 * time.Second) // Имитация работы
