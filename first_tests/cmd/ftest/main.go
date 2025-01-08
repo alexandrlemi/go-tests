@@ -7,11 +7,11 @@ import (
 )
 
 // Функция, которая выполняет какую-то работу и сигнализирует о завершении через контекст
-func worker(ctx context.Context,cancel context.CancelFunc, done chan<- struct{}) {
+func worker(ctx context.Context, cancel context.CancelFunc, done chan<- struct{}) {
 	defer close(done) // Закрываем канал при завершении работы
 	//test Nikita2 
 	fmt.Println("Горутина начала работу")
-	
+
 	time.Sleep(1 * time.Second) // Имитация работы
 	cancel()
 	time.Sleep(1 * time.Second) // Имитация работы
@@ -31,7 +31,7 @@ func main() {
 	done := make(chan struct{})
 
 	// Запускаем горутину
-	go worker(ctx, cancel,done)
+	go worker(ctx, cancel, done)
 
 	// Ожидаем завершения горутины
 	fmt.Println("Ожидаем завершения горутины...")
