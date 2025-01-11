@@ -12,7 +12,7 @@ import (
 type TcpSrv interface {
 	Start(ctx context.Context, addres string) error
 }
-git
+
 // конструктор возвращает интерфейс
 func NewTcpSrv(logger *slog.Logger) TcpSrv {
 
