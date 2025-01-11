@@ -9,7 +9,7 @@ import (
 // Функция, которая выполняет какую-то работу и сигнализирует о завершении через контекст
 func worker(ctx context.Context, cancel context.CancelFunc, done chan<- struct{}) {
 	defer close(done) // Закрываем канал при завершении работы
-	//test Nikita2 
+	//test Nikita2
 	fmt.Println("Горутина начала работу")
 
 	time.Sleep(1 * time.Second) // Имитация работы
@@ -36,7 +36,7 @@ func main() {
 	// Ожидаем завершения горутины
 	fmt.Println("Ожидаем завершения горутины...")
 	select {
-	case <-done: // Ждём сигнала о завершении
+	case <-done: // Ждём сигнала о завершенииce
 		fmt.Println("Горутина завершила работу, main продолжает выполнение")
 	case <-ctx.Done(): // Если контекст отменён
 		fmt.Println("Контекст отменён:", ctx.Err())
