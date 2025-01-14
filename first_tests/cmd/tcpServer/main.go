@@ -8,6 +8,9 @@ import (
 )
 
 func main() {
+	//читаем конфиг 
+	//udp/tls/tct
+
 	//инициализируем лог
 	handler:=slog.NewTextHandler(os.Stdout,&slog.HandlerOptions{Level: slog.LevelDebug})
 	log:=slog.New(handler)
@@ -15,8 +18,9 @@ func main() {
 	
 	ctx,cancel := context.WithCancel(context.Background())  
 	defer cancel()
+	
+	server := tcpsrv.NewTcpSrv(log)
+	server.Start(ctx, "localhost:8080")
 
-	ts111 := tcpsrv.NewTcpSrv(log)
-	ts111.Start(ctx, "localhost:8080")
 
 }
