@@ -1,33 +1,55 @@
 package authserver
 
 type Authserver struct {
-	log SuperLog
+	UserRep     UserRepository
+	TokenSrv    TokenService
+	PsswdHasher PasswordHasher
+	AlertSrv    AlertService
+	LoggerSrv   LoggerService
+	GRPCSrv     GRPCService
 }
 
-func (s *Authserver) Start() {
-
-}
-
-type SuperLog interface {
-	Info(msg string, args ...any)
-}
-
-type Saver interface {
+// Опишем используемые интерфейсы:
+//
+//	сохранения данных в DB
+type Setter interface {
 	Save(msg string)
 }
 
+// получения данных из DB
 type Getter interface {
 	Get(msg string)
 }
 
-type SeverStruct struct {
+// работы с базой данных
+type UserRepository interface {
 }
 
-func (s *SeverStruct) Save(msg string) {
+// работы с токенами
+type TokenService interface {
+}
+
+// шифрования паролей
+type PasswordHasher interface {
+}
+
+// сервиса уведомлений
+type AlertService interface {
+}
+
+// логгер
+type LoggerService interface {
+}
+
+// GRPC
+type GRPCService interface {
+}
+
+func (s *Authserver) Start(address string, port string) {
 
 }
 
-func NewServer(log SuperLog, saver Saver) *Authserver {
+func NewServer() *Authserver {
 
 	return &Authserver{}
 }
