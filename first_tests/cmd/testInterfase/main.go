@@ -23,6 +23,7 @@ func main() {
 	} else {
 		PGDB = &PG{addr: "localhost"}
 	}
+
 	var s Saver
 	//выбираем бд
 	if typeBD == "MS" {
