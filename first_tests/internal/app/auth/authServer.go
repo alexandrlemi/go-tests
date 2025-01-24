@@ -23,6 +23,24 @@ type Getter interface {
 
 // работы с базой данных
 type UserRepository interface {
+	Save(key string, msg string)
+	Get(key string) string
+}
+
+// другой пакет
+func NewRepoMock() UserRepository {
+	return &repo{Stor: map[string]string{}}
+}
+
+type repo struct {
+	Stor map[string]string
+}
+
+func (r *repo) Save(key string, msg string) {
+	r.Stor[key] = msg
+}
+func (r *repo) Get(key string) string {
+	return r.Stor[key]
 }
 
 // работы с токенами
