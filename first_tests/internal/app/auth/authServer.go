@@ -1,73 +1,59 @@
 package authserver
 
+import (
+	"context"
+	"errors"
+	db "first_test/internal/app/db"
+	"golang.org/x/crypto/bcrypt"
+)
+
 type Authserver struct {
-	UserRep     UserRepository
-	TokenSrv    TokenService
-	PsswdHasher PasswordHasher
-	AlertSrv    AlertService
-	LoggerSrv   LoggerService
-	GRPCSrv     GRPCService
+	UserRep   db.UserRepository
+	TokenSrv  TokenService
+	AlertSrv  AlertService
+	LoggerSrv LoggerService
+	GRPCSrv   GRPCService
+	JWTKey    string
 }
 
-// Опишем используемые интерфейсы:
-//
-//	сохранения данных в DB
-type Setter interface {
-	Save(msg string)
-}
-
-// получения данных из DB
-type Getter interface {
-	Get(msg string)
-}
-
-// работы с базой данных
-type UserRepository interface {
-	Save(key string, msg string)
-	Get(key string) string
-}
-
-// другой пакет
-func NewRepoMock() UserRepository {
-	return &repo{Stor: map[string]string{}}
-}
-
-type repo struct {
-	Stor map[string]string
-}
-
-func (r *repo) Save(key string, msg string) {
-	r.Stor[key] = msg
-}
-func (r *repo) Get(key string) string {
-	return r.Stor[key]
-}
-
-// работы с токенами
-type TokenService interface {
-}
-
-// шифрования паролей
-type PasswordHasher interface {
-}
-
-// сервиса уведомлений
-type AlertService interface {
-}
-
-// логгер
-type LoggerService interface {
-}
-
-// GRPC
-type GRPCService interface {
-}
-
+// TODO: Серверный слой
 func (s *Authserver) Start(address string, port string) {
 
 }
 
-func NewServer() *Authserver {
+func NewServer(repo db.UserRepository, jwtKey string) *Authserver {
 
-	return &Authserver{}
+	return &Authserver{UserRep: repo, JWTKey: jwtKey}
 }
+
+// TODO: Авторизация
+func (s *Authserver) Login(ctx context.Context, email, password string) (string, error) {
+	hashedPassword, err := s.UserRep.Get(email)
+	if err != nil {
+		return "", errors.New("User not found")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
+		return "", errors.New("Incorrect password")
+	}
+
+	tokenString := ""
+	return tokenString, nil
+}
+
+// TODO: Регистрация
+func (s *Authserver) Register(ctx context.Context, email, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	err = s.UserRep.Save(email, string(hashedPassword))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// TODO: Работа с конфигом
+// TODO: Слой QPA

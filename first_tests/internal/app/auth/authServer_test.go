@@ -11,7 +11,7 @@ import (
 
 // TestSave проверяет, что метод Save корректно сохраняет данные.
 func TestSave(t *testing.T) {
-	 r := auth.NewRepoMock()
+	r := auth.NewRepoMock()
 
 	r.Save("key1", "value1")
 
