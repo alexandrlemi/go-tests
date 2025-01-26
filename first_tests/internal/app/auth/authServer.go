@@ -1,7 +1,6 @@
 package authserver
 
 import (
-	"context"
 	"errors"
 	db "first_test/internal/app/db"
 	"golang.org/x/crypto/bcrypt"
@@ -27,7 +26,7 @@ func NewServer(repo db.UserRepository, jwtKey string) *Authserver {
 }
 
 // TODO: Авторизация
-func (s *Authserver) Login(ctx context.Context, email, password string) (string, error) {
+func (s *Authserver) Login(email, password string) (string, error) {
 	hashedPassword, err := s.UserRep.Get(email)
 	if err != nil {
 		return "", errors.New("User not found")
@@ -42,7 +41,7 @@ func (s *Authserver) Login(ctx context.Context, email, password string) (string,
 }
 
 // TODO: Регистрация
-func (s *Authserver) Register(ctx context.Context, email, password string) error {
+func (s *Authserver) Register(email, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
