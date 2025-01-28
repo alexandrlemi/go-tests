@@ -3,14 +3,20 @@ package authserver
 import (
 	"errors"
 	db "first_test/internal/app/db"
+	log "first_test/pkg/logger"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrUserNotFound      = errors.New("user not found")
+	ErrIncorrectPassword = errors.New("incorrect password")
 )
 
 type Authserver struct {
 	UserRep   db.UserRepository
 	TokenSrv  TokenService
 	AlertSrv  AlertService
-	LoggerSrv LoggerService
+	LoggerSrv log.Logger
 	GRPCSrv   GRPCService
 	JWTKey    string
 }
