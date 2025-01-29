@@ -1,15 +1,19 @@
 package authserver
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	db "first_test/internal/app/db"
 	log "first_test/pkg/logger"
 	"golang.org/x/crypto/bcrypt"
+	"io"
 )
 
 var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrIncorrectPassword = errors.New("incorrect password")
+	ErrUserExists        = errors.New("user already exists")
 )
 
 type Authserver struct {
@@ -19,6 +23,7 @@ type Authserver struct {
 	LoggerSrv log.Logger
 	GRPCSrv   GRPCService
 	JWTKey    string
+	Pepper    string
 }
 
 // TODO: Серверный слой
@@ -27,37 +32,64 @@ func (s *Authserver) Start(address string, port string) {
 }
 
 func NewServer(repo db.UserRepository, jwtKey string) *Authserver {
-
 	return &Authserver{UserRep: repo, JWTKey: jwtKey}
 }
 
-// TODO: Авторизация
-func (s *Authserver) Login(email, password string) (string, error) {
-	hashedPassword, err := s.UserRep.Get(email)
+// TODO: Регистрация
+//
+//	Генерация соли
+func generateSalt() (string, error) {
+	saltBytes := make([]byte, 16)
+	_, err := io.ReadFull(rand.Reader, saltBytes)
 	if err != nil {
-		return "", errors.New("User not found")
+		return "", err
 	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
-		return "", errors.New("Incorrect password")
-	}
-
-	tokenString := ""
-	return tokenString, nil
+	return base64.URLEncoding.EncodeToString(saltBytes), nil
 }
 
-// TODO: Регистрация
-func (s *Authserver) Register(email, password string) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func (s *Authserver) Register(email, phone, password string) error {
+	_, _, errEmail := s.UserRep.Get(email)
+	_, _, errPhone := s.UserRep.Get(phone)
+
+	if errEmail == nil || errPhone == nil {
+		return ErrUserExists
+	}
+
+	salt, err := generateSalt()
 	if err != nil {
 		return err
 	}
 
-	err = s.UserRep.Save(email, string(hashedPassword))
+	fullPassword := password + salt + s.Pepper
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(fullPassword), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
+
+	err = s.UserRep.Save(email, phone, string(hashedPassword), salt)
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// TODO: Авторизация
+func (s *Authserver) Login(identifier, password string) (string, error) {
+	// Нужно получить пароль и соль
+	hashedPassword, salt, err := s.UserRep.Get(identifier)
+	if err != nil {
+		return "", ErrUserNotFound
+	}
+	fullPassword := password + salt + s.Pepper
+
+	// Проверить хэш пароля
+	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(fullPassword)); err != nil {
+		return "", ErrIncorrectPassword
+	}
+
+	tokenString := "JWT_Token"
+	return tokenString, nil
 }
 
 // TODO: Работа с конфигом

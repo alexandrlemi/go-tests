@@ -1,32 +1,67 @@
 package db
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
-type UserRepository interface {
-	Save(email string, password string) error
-	Get(email string) (string, error)
+type User struct {
+	Email          string
+	Phone          string
+	hashedPassword string
+	Salt           string
 }
 
-type InMemoryRepository struct {
-	data map[string]string
+var DATABASE = struct {
+	sync.Mutex
+	usersByEmail map[string]User
+	usersByPhone map[string]User
+}{
+	usersByEmail: make(map[string]User),
+	usersByPhone: make(map[string]User),
 }
 
-func NewInMemoryRepository() *InMemoryRepository {
-	return &InMemoryRepository{data: make(map[string]string)}
+var ErrUserNotFound = errors.New("user not found")
+var ErrUserExists = errors.New("user already exists")
+
+type UserRepository struct{}
+
+func NewUserRepository() UserRepository {
+	return UserRepository{}
 }
 
-func (r *InMemoryRepository) Save(email string, password string) error {
-	if _, exists := r.data[email]; exists {
-		return errors.New("email already exists")
+func (r *UserRepository) Save(email, phone, hashedPassword, salt string) error {
+	DATABASE.Lock()
+	defer DATABASE.Unlock()
+
+	if _, exist := DATABASE.usersByEmail[email]; exist {
+		return ErrUserExists
 	}
-	r.data[email] = password
+	if _, exist := DATABASE.usersByPhone[phone]; exist {
+		return ErrUserExists
+	}
+
+	user := User{
+		Email:          email,
+		Phone:          phone,
+		hashedPassword: hashedPassword,
+		Salt:           salt,
+	}
+	DATABASE.usersByEmail[email] = user
+	DATABASE.usersByPhone[phone] = user
 	return nil
 }
 
-func (r *InMemoryRepository) Get(email string) (string, error) {
-	password, exists := r.data[email]
-	if !exists {
-		return "", errors.New("email not found")
+func (r *UserRepository) Get(identifier string) (string, string, error) {
+	DATABASE.Lock()
+	defer DATABASE.Unlock()
+
+	user, exist := DATABASE.usersByEmail[identifier]
+	if !exist {
+		user, exist = DATABASE.usersByPhone[identifier]
+		if !exist {
+			return "", "", ErrUserNotFound
+		}
 	}
-	return password, nil
+	return user.hashedPassword, user.Salt, nil
 }
