@@ -1,5 +1,7 @@
 package authserver
 
+import "time"
+
 type Authserver struct {
 	UserRep     UserRepository
 	TokenSrv    TokenService
@@ -63,10 +65,26 @@ type LoggerService interface {
 type GRPCService interface {
 }
 
-func (s *Authserver) Start(address string, port string) {
-
+type trasport interface {
+	refrash(func(refToken string) error) error
+	//regist
+	//login
+	//refrash
 }
 
+func (s *Authserver) Start(tr trasport) {
+	tr.refrash(s.refHandler())
+}
+func (s *Authserver) refHandler() func(refToken string) error {
+
+	//
+	time :=time.Now()
+		
+	return func(refToken string) error {
+		println(time) 
+		return nil
+	}
+}
 func NewServer() *Authserver {
 
 	return &Authserver{}
