@@ -108,3 +108,9 @@ func TestLoggerConcurrency(t *testing.T) {
 		t.Errorf("Expected 100 log lines, got %d", len(lines)-1)
 	}
 }
+
+func TestLoggerError(t *testing.T) {
+	var buf bytes.Buffer
+	logger := NewLogger(LevelInfo, &buf)
+	logger.Error("test")
+}

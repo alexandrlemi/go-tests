@@ -18,6 +18,7 @@ func main() {
 	typeBD := "MS"
 	var MSDB *MSSQL
 	var PGDB *PG
+	
 	if typeBD == "MS" {
 		MSDB = &MSSQL{addr: "localhost"}
 	} else {

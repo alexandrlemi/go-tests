@@ -6,8 +6,9 @@ import (
 	"errors"
 	db "first_test/internal/app/db"
 	log "first_test/pkg/logger"
-	"golang.org/x/crypto/bcrypt"
 	"io"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -17,10 +18,10 @@ var (
 )
 
 type Authserver struct {
-	UserRep   db.UserRepository
+	UserRep   db.UserRepository //interface
 	TokenSrv  TokenService
 	AlertSrv  AlertService
-	LoggerSrv log.Logger
+	LoggerSrv log.Logger  //wrap over slog
 	GRPCSrv   GRPCService
 	JWTKey    string
 	Pepper    string

@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -30,6 +31,7 @@ var levelColors = map[int]string{
 
 // Логгер
 type Logger struct {
+	slog slog.Logger
 	level       int
 	output      io.Writer
 	enableColor bool
@@ -45,9 +47,14 @@ func NewLogger(level int, output io.Writer) *Logger {
 		enableColor: isTerminal(output), // Определяем терминал
 		exitFn:      os.Exit,            // Используем os.Exit
 	}
+	
 	return logger
 }
 
+func (l *Logger) Error(msg string, args ...any)  {
+	// handle error
+	l.slog.Error(fmt.Sprintf("%s  %s","my error ",msg),args)
+}
 // Проверяет, является ли `output` терминалом
 func isTerminal(output io.Writer) bool {
 	if file, ok := output.(*os.File); ok {
@@ -93,5 +100,5 @@ func (l *Logger) log(level int, message string, meta map[string]interface{}) {
 func (l *Logger) Debug(msg string, meta map[string]interface{}) { l.log(LevelDebug, msg, meta) }
 func (l *Logger) Info(msg string, meta map[string]interface{})  { l.log(LevelInfo, msg, meta) }
 func (l *Logger) Warn(msg string, meta map[string]interface{})  { l.log(LevelWarn, msg, meta) }
-func (l *Logger) Error(msg string, meta map[string]interface{}) { l.log(LevelError, msg, meta) }
+// func (l *Logger) Error(msg string, meta map[string]interface{}) { l.log(LevelError, msg, meta) }
 func (l *Logger) Fatal(msg string, meta map[string]interface{}) { l.log(LevelFatal, msg, meta) }
