@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	db "first_test/internal/app/db"
+	"first_test/internal/app/transport"
 	log "first_test/pkg/logger"
 	"io"
 
@@ -21,8 +22,8 @@ type Authserver struct {
 	UserRep   db.UserRepository //interface
 	TokenSrv  TokenService
 	AlertSrv  AlertService
-	LoggerSrv log.Logger  //wrap over slog
-	GRPCSrv   GRPCService
+	LoggerSrv log.Logger //wrap over slog
+	GRPCSrv   transport.GRPCService
 	JWTKey    string
 	Pepper    string
 }

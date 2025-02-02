@@ -1,4 +1,4 @@
-package authserver
+package transport
 
 // TODO: транспортый слой
 type GRPCService interface {
