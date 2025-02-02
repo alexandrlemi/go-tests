@@ -1,30 +1,73 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/widget"
+	"strconv"
 )
-func main()  {
-	r := gin.Default()
 
-	// Определяем маршрут для GET-запроса на корневой путь "/"
-	r.GET("/",
-		func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "Привет, мир!",
-			})
-	})
+func main() {
+	myApp := app.New()
+	myWindow := myApp.NewWindow("Калькулятор")
 
-	// Определяем маршрут для GET-запроса на путь "/hello/:name"
-	r.GET("/hello/:name", func(c *gin.Context) {
-		name := c.Param("name") // Получаем параметр "name" из URL
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Привет, " + name + "!",
+	input := widget.NewEntry()
+	input.SetPlaceHolder("0")
+
+	var result float64
+	var operator string
+	var isNewInput bool
+
+	buttons := []string{
+		"7", "8", "9", "/",
+		"4", "5", "6", "*",
+		"1", "2", "3", "-",
+		"0", ".", "=", "+",
+	}
+
+	grid := container.NewGridWithColumns(4)
+
+	for _, btn := range buttons {
+		btnText := btn
+		button := widget.NewButton(btnText, func() {
+			if btnText >= "0" && btnText <= "9" || btnText == "." {
+				if isNewInput {
+					input.SetText("")
+					isNewInput = false
+				}
+				input.SetText(input.Text + btnText)
+			} else if btnText == "=" {
+				secondOperand, _ := strconv.ParseFloat(input.Text, 64)
+				switch operator {
+				case "+":
+					result += secondOperand
+				case "-":
+					result -= secondOperand
+				case "*":
+					result *= secondOperand
+				case "/":
+					if secondOperand != 0 {
+						result /= secondOperand
+					} else {
+						input.SetText("Ошибка")
+						return
+					}
+				}
+				input.SetText(strconv.FormatFloat(result, 'f', -1, 64))
+				isNewInput = true
+			} else {
+				result, _ = strconv.ParseFloat(input.Text, 64)
+				operator = btnText
+				isNewInput = true
+			}
 		})
-	})
+		grid.Add(button)
+	}
 
-	// Запускаем сервер на порту 8080
-	r.Run(":8080")
-	
+	myWindow.SetContent(container.NewVBox(
+		input,
+		grid,
+	))
+
+	myWindow.ShowAndRun()
 }

@@ -75,11 +75,12 @@ type trasport interface {
 func (s *Authserver) Start(tr trasport) {
 	tr.refrash(s.refHandler())
 }
+
 func (s *Authserver) refHandler() func(refToken string) error {
 
 	//
 	time :=time.Now()
-		
+
 	return func(refToken string) error {
 		println(time) 
 		return nil
