@@ -68,27 +68,34 @@ type LoggerService interface {
 type GRPCService interface {
 }
 
-type Trasport interface {
+type Transport interface {
 	Refrash(func(refToken string) error) error
-	Run()error
+	Run() error
+	Register(func(identifier, hashPassword string) error) error
 }
 
-func (s *Authserver) Start(tr Trasport) {
-	tr.Refrash(s.refHandler())	
+func NewServer() *Authserver {
+
+	return &Authserver{}
+}
+
+func (s *Authserver) Start(tr Transport) {
+	tr.Refrash(s.refHandler())
+	tr.Register(s.Register())
 	tr.Run()
 }
 
 func (s *Authserver) refHandler() func(refToken string) error {
 
 	//
-	time :=time.Now()
+	time := time.Now()
 
 	return func(refToken string) error {
-		fmt.Println(time) 
+		fmt.Println(time)
 		return nil
 	}
 }
-func NewServer() *Authserver {
 
-	return &Authserver{}
+func (s *Authserver) Register(tr Transport) {
+
 }
