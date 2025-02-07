@@ -1,6 +1,9 @@
 package authserver
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Authserver struct {
 	UserRep     UserRepository
@@ -65,15 +68,14 @@ type LoggerService interface {
 type GRPCService interface {
 }
 
-type trasport interface {
-	refrash(func(refToken string) error) error
-	//regist
-	//login
-	//refrash
+type Trasport interface {
+	Refrash(func(refToken string) error) error
+	Run()error
 }
 
-func (s *Authserver) Start(tr trasport) {
-	tr.refrash(s.refHandler())
+func (s *Authserver) Start(tr Trasport) {
+	tr.Refrash(s.refHandler())	
+	tr.Run()
 }
 
 func (s *Authserver) refHandler() func(refToken string) error {
@@ -82,7 +84,7 @@ func (s *Authserver) refHandler() func(refToken string) error {
 	time :=time.Now()
 
 	return func(refToken string) error {
-		println(time) 
+		fmt.Println(time) 
 		return nil
 	}
 }
