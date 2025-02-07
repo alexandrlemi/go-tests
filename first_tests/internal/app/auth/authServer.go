@@ -1,9 +1,11 @@
 package authserver
 
 import (
+	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Authserver struct {
@@ -31,7 +33,11 @@ func (r *repo) Save(key string, msg string) error {
 	return nil
 }
 func (r *repo) Get(key string) error {
-	return nil
+	 
+	if _,exist:=r.Store[key];exist{
+		return nil
+	}
+	return errors.New("что-то пошло не так")
 }
 
 type Transport interface {
