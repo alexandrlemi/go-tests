@@ -10,17 +10,22 @@ import (
 
 // Тесты
 
-
-
-
 func TestTransportRefrash(t *testing.T) {
-	tr:= transport.NewTransport(":8080")
-	tr2:= transport.NewTransport(":8081")
+	tr := transport.NewTransport(":8080")
+	tr2 := transport.NewTransport(":8081")
 
-	authsrv:=auth.Authserver{}
-	go	authsrv.Start(tr)
+	authsrv := auth.Authserver{}
+	go authsrv.Start(tr)
 	authsrv.Start(tr2)
+
 	//TODO сделать запрос прям от сюда
-	
-	
+
+}
+
+func TestAuthserver_Register(t *testing.T) {
+	tr := transport.NewTransport(":8080")
+	mockRepo := auth.NewRepoMock()
+	authSrv := auth.NewServer(mockRepo)
+	authSrv.Start(tr)
+
 }
