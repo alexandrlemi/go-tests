@@ -33,8 +33,8 @@ func (r *repo) Save(key string, msg string) error {
 	return nil
 }
 func (r *repo) Get(key string) error {
-	 
-	if _,exist:=r.Store[key];exist{
+
+	if _, exist := r.Store[key]; exist {
 		return nil
 	}
 	return errors.New("что-то пошло не так")
@@ -59,7 +59,6 @@ func (s *Authserver) Start(tr Transport) {
 
 func (s *Authserver) refHandler() func(refToken string) error {
 
-	//
 	time := time.Now()
 
 	return func(refToken string) error {
